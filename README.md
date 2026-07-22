@@ -1,1 +1,67 @@
-# opnsense-segmentation-vlan
+# 🌐 Segmentation du réseau avec les VLAN — OPNsense
+
+> Six VLAN isolant chacun un domaine fonctionnel, avec routage et filtrage inter-VLAN assurés par OPNsense.
+
+## Pourquoi segmenter
+
+Limiter la surface d'attaque, cloisonner les flux entre domaines fonctionnels et simplifier le diagnostic réseau — plutôt qu'un unique réseau plat où tout hôte peut potentiellement en atteindre un autre.
+
+> ⚠️ La box opérateur d'origine ne supportait pas le tagging 802.1Q. Elle a été remplacée par un **commutateur TP-Link**, ce qui a débloqué la mise en œuvre effective des VLAN.
+
+## Cartographie des VLAN
+
+| VLAN | Tag | Plage CIDR | Vocation | Hôtes représentatifs |
+|---|---|---|---|---|
+| LAN | natif | 192.168.6.0/24 | Administration & cœur | Hyperviseurs, AD, OPNsense, poste de gestion |
+| TEST | 10 | — | Bac à sable | Bancs d'essai |
+| SRV | 20 | — | Serveurs applicatifs | Filers DFS, GLPI |
+| GES | 30 | — | Postes de gestion | Postes administrateurs déportés |
+| SEC | 40 | — | Sécurité & supervision | Wazuh, Zabbix |
+| PRA | 50 | — | Plan de reprise | Proxmox Backup Server secondaire |
+| VPN | 60 | — | Accès distant | Tailscale et nœuds VPN |
+
+## Procédure de déploiement côté OPNsense
+
+1. Rattacher le VLAN à l'interface physique LAN → génère une sous-interface logique.
+2. Assigner une IP à cette sous-interface (= passerelle du sous-réseau).
+3. Déclarer le scope DHCP correspondant (voir `opnsense-dhcp-kea`).
+
+## Filtrage inter-VLAN — exemple SRV → LAN (flux Active Directory)
+
+Politique de moindre privilège : tout est refusé et journalisé par défaut.
+
+| Protocole | Port destination | Service Microsoft |
+|---|---|---|
+| TCP | 88 | Kerberos |
+| TCP | 464 | Kerberos password change |
+| TCP | 3268 / 3269 | Global Catalog LDAP / LDAPS |
+| TCP | 9389 | AD Web Services |
+| TCP/UDP | 389 / 636 | LDAP / LDAPS |
+| TCP | 445 | SMB |
+| TCP | 135 + 49152-65535 | RPC dynamique |
+| UDP | 53 | DNS |
+
+## Incident résolu — canal sécurisé rompu
+
+Suite à un déplacement de VM entre VLAN :
+
+```powershell
+netdom resetpwd /server:192.168.6.9 /userd:raidaporter\Administrateur /passwordd:*
+```
+
+## Difficultés rencontrées
+
+| Difficulté | Cause | Résolution |
+|---|---|---|
+| Box opérateur incompatible VLAN | Pas de support 802.1Q | Remplacement par switch TP-Link non géré |
+| Agent Wazuh ne s'enregistre pas | Port 1515 bloqué inter-VLAN | Ajout de la règle 1515 en complément du 1514 |
+| Canal sécurisé AD rompu | Compte machine désynchronisé après changement VLAN | `netdom resetpwd` |
+
+## Repos liés
+
+- `opnsense-dhcp-kea`
+- `proxmox-commutateurs-virtuels`
+
+## Auteur
+
+**Lilian Vertueux** — [LinkedIn](https://www.linkedin.com/in/lilian-vertueux/)
