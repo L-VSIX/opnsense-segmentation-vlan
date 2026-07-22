@@ -6,18 +6,15 @@
 
 Limiter la surface d'attaque, cloisonner les flux entre domaines fonctionnels et simplifier le diagnostic réseau — plutôt qu'un unique réseau plat où tout hôte peut potentiellement en atteindre un autre.
 
-> ⚠️ La box opérateur d'origine ne supportait pas le tagging 802.1Q. Elle a été remplacée par un **commutateur TP-Link**, ce qui a débloqué la mise en œuvre effective des VLAN.
-
 ## Cartographie des VLAN
 
 | VLAN | Tag | Plage CIDR | Vocation | Hôtes représentatifs |
 |---|---|---|---|---|
 | LAN | natif | 192.168.6.0/24 | Administration & cœur | Hyperviseurs, AD, OPNsense, poste de gestion |
-| TEST | 10 | — | Bac à sable | Bancs d'essai |
 | SRV | 20 | — | Serveurs applicatifs | Filers DFS, GLPI |
 | GES | 30 | — | Postes de gestion | Postes administrateurs déportés |
 | SEC | 40 | — | Sécurité & supervision | Wazuh, Zabbix |
-| PRA | 50 | — | Plan de reprise | Proxmox Backup Server secondaire |
+| PRA | 50 | — | Plan de reprise | Proxmox Backup Server |
 | VPN | 60 | — | Accès distant | Tailscale et nœuds VPN |
 
 ## Procédure de déploiement côté OPNsense
@@ -41,26 +38,10 @@ Politique de moindre privilège : tout est refusé et journalisé par défaut.
 | TCP | 135 + 49152-65535 | RPC dynamique |
 | UDP | 53 | DNS |
 
-## Incident résolu — canal sécurisé rompu
-
-Suite à un déplacement de VM entre VLAN :
-
-```powershell
-netdom resetpwd /server:192.168.6.9 /userd:raidaporter\Administrateur /passwordd:*
-```
-
-## Difficultés rencontrées
-
-| Difficulté | Cause | Résolution |
-|---|---|---|
-| Box opérateur incompatible VLAN | Pas de support 802.1Q | Remplacement par switch TP-Link non géré |
-| Agent Wazuh ne s'enregistre pas | Port 1515 bloqué inter-VLAN | Ajout de la règle 1515 en complément du 1514 |
-| Canal sécurisé AD rompu | Compte machine désynchronisé après changement VLAN | `netdom resetpwd` |
-
 ## Repos liés
 
 - `opnsense-dhcp-kea`
-- `proxmox-commutateurs-virtuels`
+- [`proxmox-commutateurs-virtuels`](https://github.com/L-VSIX/proxmox-commutateurs-virtuels)
 
 ## Auteur
 
