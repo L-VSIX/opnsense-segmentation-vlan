@@ -11,6 +11,7 @@ Limiter la surface d'attaque, cloisonner les flux entre domaines fonctionnels et
 | VLAN | Tag | Plage CIDR | Vocation | Hôtes représentatifs |
 |---|---|---|---|---|
 | LAN | natif | 192.168.6.0/24 | Administration & cœur | Hyperviseurs, AD, OPNsense, poste de gestion |
+| TEST | 10 | — | Bac à sable | Bancs d'essai |
 | SRV | 20 | — | Serveurs applicatifs | Filers DFS, GLPI |
 | GES | 30 | — | Postes de gestion | Postes administrateurs déportés |
 | SEC | 40 | — | Sécurité & supervision | Wazuh, Zabbix |
