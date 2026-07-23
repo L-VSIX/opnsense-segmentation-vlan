@@ -24,6 +24,11 @@ Limiter la surface d'attaque, cloisonner les flux entre domaines fonctionnels et
 2. Assigner une IP à cette sous-interface (= passerelle du sous-réseau).
 3. Déclarer le scope DHCP correspondant (voir `opnsense-dhcp-kea`).
 
+## Aperçu
+
+<img width="1466" height="560" alt="vlan-opn" src="https://github.com/user-attachments/assets/bd9fdbca-c699-41c6-9ef1-e5ae65c5580d" />
+
+
 ## Filtrage inter-VLAN — exemple SRV → LAN (flux Active Directory)
 
 Politique de moindre privilège : tout est refusé et journalisé par défaut.
@@ -41,7 +46,7 @@ Politique de moindre privilège : tout est refusé et journalisé par défaut.
 
 ## Repos liés
 
-- `opnsense-dhcp-kea`
+- [`opnsense-dhcp-kea`](https://github.com/L-VSIX/opnsense-dhcp-kea)
 - [`proxmox-commutateurs-virtuels`](https://github.com/L-VSIX/proxmox-commutateurs-virtuels)
 
 ## Auteur
